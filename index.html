@@ -1,0 +1,1038 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ғылым кілті — Жас зерттеушінің цифрлық зертханасы</title>
+  <!-- Google Fonts: Montserrat for Modern Scientific Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-light: #f4f8ff;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --card-border: rgba(37, 99, 235, 0.15);
+      --navy: #0f172a;
+      --blue-primary: #1d4ed8;
+      --blue-hover: #2563eb;
+      --cyan-accent: #0284c7;
+      --gold: #d97706;
+      --gold-light: #fef3c7;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --line: #e2e8f0;
+      --shadow-sm: 0 4px 20px rgba(37, 99, 235, 0.06);
+      --shadow-lg: 0 12px 35px rgba(15, 23, 42, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Interactive Scientific Canvas Background (Light Mode) */
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: auto;
+    }
+
+    /* Content Wrapper above canvas */
+    .app-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .bar {
+      max-width: 1200px;
+      margin: auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--navy);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-icon {
+      color: var(--blue-primary);
+      font-size: 26px;
+    }
+
+    .brand span {
+      color: var(--gold);
+    }
+
+    nav {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+
+    nav button, .ghost {
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--navy);
+      border: 1px solid var(--line);
+      padding: 10px 18px;
+      backdrop-filter: blur(4px);
+    }
+
+    nav button:hover, .ghost:hover {
+      background: #eff6ff;
+      border-color: var(--blue-primary);
+      color: var(--blue-primary);
+      transform: translateY(-1px);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: auto;
+      padding: 30px 20px 60px;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Hero Section - Soft Bright Blue Gradient */
+    .hero {
+      border-radius: 32px;
+      padding: 60px 40px;
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 20px 40px rgba(37, 99, 235, 0.2);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 45px;
+      color: #ffffff;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      font-family: 'Montserrat', sans-serif;
+      color: #fef08a;
+      letter-spacing: 2px;
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 6px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .hero h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(36px, 6vw, 60px);
+      font-weight: 900;
+      margin: 12px 0 20px;
+      line-height: 1.1;
+      color: #ffffff;
+    }
+
+    .hero p {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 18px;
+      max-width: 680px;
+      line-height: 1.7;
+      color: #e0f2fe;
+      margin-bottom: 28px;
+    }
+
+    .primary {
+      border: 0;
+      border-radius: 14px;
+      padding: 14px 28px;
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #1e1b4b;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 8px 20px rgba(217, 119, 6, 0.3);
+    }
+
+    .primary:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(217, 119, 6, 0.4);
+    }
+
+    /* Section titles */
+    h2 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 32px;
+      color: var(--navy);
+      margin: 40px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Cards & Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 22px;
+      margin-top: 25px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 26px;
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(10px);
+    }
+
+    .section-card {
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 240px;
+      border: 1px solid var(--line);
+      background: #ffffff;
+      box-shadow: 0 8px 25px rgba(15, 23, 42, 0.04);
+    }
+
+    .section-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--blue-primary);
+      box-shadow: 0 15px 35px rgba(37, 99, 235, 0.12);
+    }
+
+    .emoji {
+      font-size: 46px;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .section-card h3 {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--navy);
+      font-size: 20px;
+      margin: 0 0 10px;
+      font-weight: 700;
+    }
+
+    .tag {
+      font-family: 'Montserrat', sans-serif;
+      display: inline-block;
+      border-radius: 50px;
+      background: #eff6ff;
+      color: var(--blue-primary);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      margin-bottom: 12px;
+      border: 1px solid #dbeafe;
+    }
+
+    .section-card .go {
+      font-family: 'Montserrat', sans-serif;
+      color: var(--blue-primary);
+      font-weight: 700;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .back {
+      margin-bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Detail Page Header */
+    .detail-head {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      color: white;
+      padding: 35px;
+      margin-bottom: 30px;
+      box-shadow: 0 15px 30px rgba(37, 99, 235, 0.18);
+    }
+
+    .detail-head h1 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 36px;
+      margin: 10px 0 15px;
+      color: #ffffff;
+    }
+
+    /* Video Player Styling */
+    .video-block {
+      background: #0f172a;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 18px 0;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .video-container {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #090d16;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      outline: none;
+    }
+
+    .video-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px 20px;
+      color: #94a3b8;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    }
+
+    .video-placeholder .play-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.15);
+      border: 2px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: #38bdf8;
+      margin-bottom: 16px;
+    }
+
+    .video-placeholder code {
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #fbbf24;
+      font-family: monospace;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    /* Accordion Topics */
+    .topic {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      margin: 14px 0;
+      background: #ffffff;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+    }
+
+    .topic summary {
+      cursor: pointer;
+      padding: 20px 24px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .topic summary:hover {
+      background: #f8fafc;
+      color: var(--blue-primary);
+    }
+
+    .topic .inside {
+      padding: 10px 24px 24px;
+      border-top: 1px solid var(--line);
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .step {
+      padding: 16px;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      font-size: 14px;
+    }
+
+    .step b {
+      display: block;
+      color: var(--blue-primary);
+      margin-bottom: 6px;
+      font-size: 15px;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    /* Inputs & Form Elements */
+    .field {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid #cbd5e1;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      margin: 8px 0 18px;
+      background: #ffffff;
+      color: var(--text-main);
+    }
+
+    .field:focus {
+      outline: none;
+      border-color: var(--blue-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    textarea.field {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .notice {
+      background: #fffbebf5;
+      border-left: 4px solid var(--gold);
+      padding: 20px;
+      border-radius: 14px;
+      line-height: 1.6;
+      border-top: 1px solid #fef3c7;
+      border-right: 1px solid #fef3c7;
+      border-bottom: 1px solid #fef3c7;
+      color: #92400e;
+    }
+
+    /* Quiz Styling */
+    .quiz-opt {
+      display: block;
+      margin: 10px 0;
+      padding: 14px 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      cursor: pointer;
+      background: #ffffff;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    .quiz-opt:hover {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+
+    .quiz-opt:has(input:checked) {
+      background: #eff6ff;
+      border-color: var(--blue-primary);
+      color: var(--navy);
+      font-weight: 600;
+    }
+
+    /* Footer */
+    footer {
+      background: #ffffff;
+      border-top: 1px solid var(--line);
+      color: var(--text-muted);
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 14px;
+      margin-top: auto;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 35px 22px;
+      }
+      .bar {
+        justify-content: center;
+      }
+      nav {
+        justify-content: center;
+        width: 100%;
+      }
+      nav button {
+        flex: 1;
+        text-align: center;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Interactive Science Canvas Animation -->
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="app-container">
+    <!-- Header Navigation -->
+    <header>
+      <div class="bar">
+        <div class="brand" onclick="showHome()">
+          <span class="brand-icon">✦</span> ҒЫЛЫМ <span>КІЛТІ</span>
+        </div>
+        <nav>
+          <button onclick="showHome()">Басты бет</button>
+          <button onclick="showHome(true)">5 бөлім</button>
+          <button onclick="showDiary()">Ғылыми күнделік</button>
+          <button onclick="showAuthor()">Автор туралы</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content Wrapper -->
+    <main class="wrap">
+      
+      <!-- HOME SECTION -->
+      <section id="home">
+        <div class="hero">
+          <div class="eyebrow">ЖАС ЗЕРТТЕУШІНІҢ ЦИФРЛЫҚ ЗЕРТХАНАСЫ</div>
+          <h1>ҒЫЛЫМ КІЛТІ</h1>
+          <p>Ғылым әлемін бірге ашайық! Бақыла, сұрақ қой, болжам жаса, зертте және өз жаңалығыңды аш.</p>
+          <button class="primary" onclick="showHome(true)">Зерттеуді бастау →</button>
+        </div>
+
+        <h2 id="sectionsTitle">✦ Бес ғылыми әлем</h2>
+        <p class="muted">«Ғылымға бастар баспалдақ» авторлық бағдарламасының бөлімдері</p>
+
+        <!-- MAIN MAIN INTRO VIDEO FOR "БЕС ҒЫЛЫМИ ӘЛЕМ" SECTION -->
+        <div class="card" style="margin: 25px 0 35px;">
+          <h3 style="margin-top:0; color: var(--blue-primary); font-size: 20px;">🎥 «Бес ғылыми әлем» бағдарламасының бейнекіріспесі</h3>
+          <p class="muted" style="margin-bottom: 15px;">Кіріспе бейнежазбаны көріп, зертханалық жұмыстармен танысыңыз:</p>
+          <div class="video-block">
+            <div class="video-container" id="mainIntroVideo">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Scientific Sections Grid -->
+        <div class="grid" id="cards"></div>
+
+        <div class="notice" style="margin-top:35px">
+          <b style="color: var(--gold);">💡 Жас зерттеушіге кеңес:</b> Бейне — зерттеуге арналған көрнекі модель. Болжамыңды өз бақылауыңмен тексеріп, ғылыми күнделікке жаз.
+        </div>
+      </section>
+
+      <!-- DETAIL SECTION -->
+      <section id="detail" class="hidden">
+        <button class="ghost back" onclick="showHome(true)">← Бес бөлімге оралу</button>
+        
+        <div class="detail-head">
+          <div id="sectionNum" class="eyebrow"></div>
+          <h1 id="sectionName"></h1>
+          <p id="sectionDesc" class="muted" style="color: #cbd5e1; font-size: 17px;"></p>
+        </div>
+
+        <h2>🎬 Бөлімге кіріспе видео</h2>
+        <div class="card">
+          <p class="muted" style="margin-top:0;">Бөлімнің бейнезаставкасы:</p>
+          <div class="video-block">
+            <div class="video-container" id="introVideo"></div>
+          </div>
+        </div>
+
+        <h2>🔬 Зерттеу тақырыптары</h2>
+        <p class="muted">Тақырыпты басып, видеоны және зерттеу тапсырмасын ашыңыз.</p>
+        <div id="topics"></div>
+      </section>
+
+      <!-- SCIENTIFIC DIARY SECTION -->
+      <section id="diary" class="hidden">
+        <button class="ghost back" onclick="showHome()">← Басты бет</button>
+        <h2>📒 Ғылыми күнделік</h2>
+        <p class="muted">Зерттеу қадамдарын толтырыңыз. Жазбалар осы браузерде сақталады; басқа құрылғыда автоматты түрде ашылмайды.</p>
+        
+        <div class="card">
+          <label><b>Зерттеу тақырыбы</b>
+            <input class="field" id="dTopic" placeholder="Мысалы: Ауа райы неге өзгереді?">
+          </label>
+          <label><b>Зерттеу сұрағы</b>
+            <textarea class="field" id="dQuestion" placeholder="Зерттеуге қатысты сұрағыңызды жазыңыз..."></textarea>
+          </label>
+          <label><b>Менің болжамым</b>
+            <textarea class="field" id="dHypothesis" placeholder="Сіздің ойыңызша жауабы қандай болуы мүмкін?"></textarea>
+          </label>
+          <label><b>Бақылау / тәжірибе нәтижесі</b>
+            <textarea class="field" id="dObservation" placeholder="Тәжірибе барысында не байқадыңыз?"></textarea>
+          </label>
+          <label><b>Менің қорытындым</b>
+            <textarea class="field" id="dConclusion" placeholder="Қандай қорытындыға келдіңіз?"></textarea>
+          </label>
+          
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="primary" onclick="saveDiary()">Күнделікке сақтау</button>
+            <button class="ghost" onclick="window.print()">Басып шығару</button>
+          </div>
+          <p id="saveStatus" class="muted" style="font-size: 14px; margin-top: 12px;"></p>
+        </div>
+      </section>
+
+      <!-- AUTHOR SECTION -->
+      <section id="author" class="hidden">
+        <button class="ghost back" onclick="showHome()">← Басты бет</button>
+        <h2>Авторлық бағдарлама туралы</h2>
+        <div class="card">
+          <h3 style="color: var(--cyan); font-size: 24px; margin-top: 0;">«Ғылымға бастар баспалдақ»</h3>
+          <p>Жалпы білім беретін мектептің жаратылыстану пәні бойынша 4-сыныпқа арналған авторлық бағдарлама.</p>
+          <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 16px; border: 1px solid var(--line); margin: 20px 0;">
+            <p style="margin: 6px 0;"><b>Автор:</b> Мутиева Алия Таргиновна</p>
+            <p style="margin: 6px 0;"><b>Мекеме:</b> БҚО, Сырым ауданы, «Көздіғара негізгі орта мектебі» КММ</p>
+            <p style="margin: 6px 0;"><b>Оқу жүктемесі:</b> аптасына 1 сағат, барлығы 34 сағат.</p>
+          </div>
+          <p class="muted">«Ғылым кілті» — бағдарламадағы зерттеу әрекеттерін цифрлық форматта көрсетуге арналған интерактивті платформа.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      ҒЫЛЫМ КІЛТІ · Жас зерттеушінің цифрлық зертханасы · 2026
+    </footer>
+  </div>
+
+  <script>
+    /* ===================================================
+       1. LIGHT MODE SCIENCE CANVAS ANIMATION
+       =================================================== */
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: null, y: null, radius: 150 };
+
+    function initCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particles = [];
+      const particleCount = Math.floor((canvas.width * canvas.height) / 14000);
+      
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 2.5 + 1,
+          vx: (Math.random() - 0.5) * 0.6,
+          vy: (Math.random() - 0.5) * 0.6,
+          color: Math.random() > 0.3 ? '#3b82f6' : '#d97706'
+        });
+      }
+    }
+
+    function animateCanvas() {
+      requestAnimationFrame(animateCanvas);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw particle connections (Light mode blue lines)
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(37, 99, 235, ${0.25 - (dist / 120) * 0.22})`;
+            ctx.lineWidth = 0.8;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Draw and update particles
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // Bounce on boundaries
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        // Mouse interaction
+        if (mouse.x !== null) {
+          const mdx = p.x - mouse.x;
+          const mdy = p.y - mouse.y;
+          const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+          if (mdist < mouse.radius) {
+            const angle = Math.atan2(mdy, mdx);
+            const force = (mouse.radius - mdist) / mouse.radius;
+            p.x += Math.cos(angle) * force * 2;
+            p.y += Math.sin(angle) * force * 2;
+          }
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      });
+    }
+
+    window.addEventListener('resize', initCanvas);
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+    window.addEventListener('mouseleave', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    initCanvas();
+    animateCanvas();
+
+    /* ===================================================
+       2. APPLICATION DATA & LOGIC WITH MP4 SUPPORT
+       =================================================== */
+
+    // Компьютерден MP4 видеоларды қосу үшін файл жолдарын (path) төменде көрсетіңіз.
+    // Файлдарды веб-сайт папкасының ішіндегі "videos/" папкасына салыңыз.
+    const mainIntroVideoSrc = 'videos/main-intro.mp4'; // «Бес ғылыми әлем» басты кіріспе видеосы
+
+    const sections = [
+      {
+        name: 'Мен зерттеушімін',
+        icon: '🔎',
+        desc: 'Зерттеу сұрағын қою, болжам жасау, бақылау жүргізу және қорытынды шығару.',
+        intro: 'videos/bolim1.mp4',
+        topics: [
+          {
+            name: 'Мен зерттеуші боламын',
+            question: 'Ауа райы неліктен өзгеріп тұрады?',
+            hint: 'Ауа райын бақылап, бұлт, жел және жауын-шашын белгілерін тірке.',
+            video: 'videos/aua-raiy.mp4',
+            quiz: {
+              q: 'Жаңбыр жаууы мүмкін екенін қандай белгі көрсетеді?',
+              options: ['Қара бұлттардың көбеюі', 'Аспанның бұлтсыз болуы', 'Күннің жарқырауы'],
+              correct: 0
+            }
+          },
+          {
+            name: 'Ауа райы неге өзгереді? — Зерттеу сұрағы мен болжам',
+            question: 'Бұлт көбейсе, міндетті түрде жаңбыр жауа ма?',
+            hint: 'Болжам жаса және ауа райын бірнеше күн бақыла.',
+            video: 'videos/aua-raiy-2.mp4'
+          },
+          {
+            name: 'Жас зерттеушінің бақылауы — Ғылыми күнделік',
+            question: 'Бақылау нәтижесі болжамыңды растады ма?',
+            hint: 'Күн, бұлт, жел, жауын-шашын белгілерін жазып, қорытынды жаса.',
+            video: 'videos/gylymi-kundelik.mp4'
+          }
+        ]
+      },
+      {
+        name: 'Жанды табиғат',
+        icon: '🌿',
+        desc: 'Өсімдіктер, жануарлар, табиғатты қорғау және адам ағзасы.',
+        intro: 'videos/bolim2.mp4',
+        topics: [
+          'Өсімдік әлемі',
+          'Қайың ағашын зерттейік',
+          'Бөртегүл бұтағының пайдасы',
+          'Алоэ өсімдігін зерттеу',
+          'Жануар дүниесі. Ақбөкен',
+          'Жылқы – ер қанаты',
+          'Табиғатты қорғауға қалай атсалысамын?',
+          'Адам денесінің құпиясы',
+          'Адам көркі – шаш'
+        ].map((name, idx) => ({
+          name,
+          video: `videos/zhandy-tabigat-${idx + 1}.mp4`
+        }))
+      },
+      {
+        name: 'Заттар және олардың қасиеттері',
+        icon: '💧',
+        desc: 'Ауаның, судың және табиғи ресурстардың қасиеттерін зерттеу.',
+        intro: 'videos/bolim3.mp4',
+        topics: [
+          'Ауа – тіршілік өмірі',
+          'Су – тіршілік көзі',
+          'Ауа мен су – адамның досы',
+          'Табиғи ресурстар',
+          'Табиғат – жер байлығы'
+        ].map((name, idx) => ({
+          name,
+          video: `videos/zattar-${idx + 1}.mp4`
+        }))
+      },
+      {
+        name: 'Жер және Ғарыш',
+        icon: '🪐',
+        desc: 'Жер, Күн, ғаламшарлар, уақыт және табиғаттың тылсым сырлары.',
+        intro: 'videos/bolim4.mp4',
+        topics: [
+          'Жер мен Күннің достығы',
+          'Күн жүйесі',
+          'Уақыт',
+          'Табиғаттың тылсым сырлары'
+        ].map((name, idx) => ({
+          name,
+          video: `videos/garysh-${idx + 1}.mp4`
+        }))
+      },
+      {
+        name: 'Табиғат физикасы',
+        icon: '🧲',
+        desc: 'Күш, қозғалыс, жарық, дыбыс, жылу және магнит.',
+        intro: 'videos/bolim5.mp4',
+        topics: [
+          'Күш және қозғалыс деген не?',
+          'Қозғалыс пен күшті зерттеп көрейік',
+          'Жарықтың таралуы',
+          'Дыбыс табиғаты',
+          'Жылу қозғалысы',
+          'Магнит ағыны',
+          'Табиғат құбылысын зерттейік'
+        ].map((name, idx) => ({
+          name,
+          video: `videos/fizika-${idx + 1}.mp4`
+        }))
+      }
+    ];
+
+    function el(id) { return document.getElementById(id); }
+    
+    function safe(t) {
+      return String(t || '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      }[c]));
+    }
+
+    function view(id) {
+      ['home', 'detail', 'diary', 'author'].forEach(k => el(k).classList.toggle('hidden', k !== id));
+      window.scrollTo(0, 0);
+    }
+
+    function showHome(scroll) {
+      view('home');
+      if (scroll) setTimeout(() => el('sectionsTitle').scrollIntoView({ behavior: 'smooth' }), 30);
+    }
+
+    function showDiary() { view('diary'); }
+    function showAuthor() { view('author'); }
+
+    // Custom HTML for Video Player with automatic placeholder fallback
+    function renderVideoHtml(src, label) {
+      if (!src) {
+        return `
+          <div class="video-placeholder">
+            <div class="play-icon">▶</div>
+            <strong style="color:#ffffff; font-size:16px;">${safe(label)}</strong>
+            <p style="margin: 4px 0 0; font-size: 13px;">Видео файлы таңдалмаған</p>
+          </div>
+        `;
+      }
+
+      return `
+        <video controls preload="metadata" playsinline onerror="this.outerHTML=this.nextElementSibling.outerHTML">
+          <source src="${safe(src)}" type="video/mp4">
+          Браузер видеоны қолдамайды.
+        </video>
+        <div class="video-placeholder" style="display:none;">
+          <div class="play-icon">🎬</div>
+          <strong style="color:#ffffff; font-size:16px;">${safe(label)}</strong>
+          <p style="margin: 4px 0 0; font-size: 13px;">Компьютерден MP4 файл табылмады</p>
+          <code>${safe(src)}</code>
+        </div>
+      `;
+    }
+
+    function openSection(i) {
+      const s = sections[i];
+      view('detail');
+      el('sectionNum').textContent = (i + 1) + '-БӨЛІМ';
+      el('sectionName').textContent = s.icon + ' ' + s.name;
+      el('sectionDesc').textContent = s.desc;
+      el('introVideo').innerHTML = renderVideoHtml(s.intro, `${s.name} — Бөлімнің бейнезаставкасы`);
+
+      el('topics').innerHTML = s.topics.map((t, j) => `
+        <details class="topic">
+          <summary><span>${j + 1}. ${safe(t.name)}</span> <span style="color:var(--cyan); font-size: 14px;">Ашу ▼</span></summary>
+          <div class="inside">
+            <div class="video-block">
+              <div class="video-container">
+                ${renderVideoHtml(t.video, `${t.name} (Видеосабақ)`)}
+              </div>
+            </div>
+            ${t.question ? `<p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> ${safe(t.question)}</p>` : ''}
+            ${t.hint ? `<p class="muted"><b>💡 Нұсқау:</b> ${safe(t.hint)}</p>` : ''}
+            
+            <div class="steps">
+              <div class="step"><b>1. Сұрақ</b>Нені білгім келеді?</div>
+              <div class="step"><b>2. Болжам</b>Мен қалай ойлаймын?</div>
+              <div class="step"><b>3. Бақылау</b>Не байқадым?</div>
+              <div class="step"><b>4. Қорытынды</b>Нені анықтадым?</div>
+            </div>
+
+            ${t.quiz ? `
+              <div class="card" style="margin: 15px 0; background: rgba(0,0,0,0.2);">
+                <b style="color: var(--gold); font-size: 16px;">❓ Тапсырма: ${safe(t.quiz.q)}</b>
+                <div style="margin-top: 10px;">
+                  ${t.quiz.options.map((o, k) => `
+                    <label class="quiz-opt">
+                      <input type="radio" name="quiz-${i}-${j}" value="${k}"> ${safe(o)}
+                    </label>
+                  `).join('')}
+                </div>
+                <button class="ghost" style="margin-top: 10px;" onclick="checkQuiz(${i},${j})">Жауапты тексеру</button>
+                <p id="feedback-${i}-${j}" style="margin-top: 8px; font-weight: 600;" aria-live="polite"></p>
+              </div>
+            ` : ''}
+
+            <button class="primary" style="margin-top: 10px;" onclick="startDiary(${i},${j})">📒 Ғылыми күнделікке жазу</button>
+          </div>
+        </details>
+      `).join('');
+    }
+
+    function checkQuiz(i, j) {
+      const selected = document.querySelector(`input[name="quiz-${i}-${j}"]:checked`);
+      const feedback = el(`feedback-${i}-${j}`);
+      if (!selected) {
+        feedback.style.color = '#fbbf24';
+        feedback.textContent = 'Алдымен жауапты таңдаңыз.';
+      } else if (Number(selected.value) === sections[i].topics[j].quiz.correct) {
+        feedback.style.color = '#4ade80';
+        feedback.textContent = 'Дұрыс! Бұл — жаңбыр жаууы мүмкін екенін білдіретін белгілердің бірі.';
+      } else {
+        feedback.style.color = '#f87171';
+        feedback.textContent = 'Қайта ойланып көріңіз.';
+      }
+    }
+
+    function startDiary(i, j) {
+      el('dTopic').value = sections[i].topics[j].name;
+      showDiary();
+    }
+
+    function saveDiary() {
+      const data = {};
+      ['dTopic', 'dQuestion', 'dHypothesis', 'dObservation', 'dConclusion'].forEach(k => data[k] = el(k).value);
+      try {
+        localStorage.setItem('gylym-kilti-diary', JSON.stringify(data));
+        el('saveStatus').style.color = '#4ade80';
+        el('saveStatus').textContent = '✓ Жазба осы браузерде сәтті сақталды.';
+      } catch (e) {
+        el('saveStatus').style.color = '#f87171';
+        el('saveStatus').textContent = 'Автоматты сақтау қолжетімсіз. Жазбаңызды көшіріп алыңыз.';
+      }
+    }
+
+    // Load main video
+    el('mainIntroVideo').innerHTML = renderVideoHtml(mainIntroVideoSrc, '«Бес ғылыми әлем» басты бейнекіріспесі');
+
+    // Render 5 Sections
+    el('cards').innerHTML = sections.map((s, i) => `
+      <article class="card section-card" role="button" tabindex="0" onclick="openSection(${i})" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openSection(${i})}">
+        <div>
+          <div class="emoji">${s.icon}</div>
+          <span class="tag">${i + 1}-БӨЛІМ</span>
+          <h3>${safe(s.name)}</h3>
+          <p class="muted" style="font-size: 14px;">${safe(s.desc)}</p>
+        </div>
+        <div class="go">Бөлімді ашу <span>→</span></div>
+      </article>
+    `).join('');
+
+    // Load saved diary
+    try {
+      const saved = JSON.parse(localStorage.getItem('gylym-kilti-diary') || 'null');
+      if (saved) Object.keys(saved).forEach(k => { if (el(k)) el(k).value = saved[k]; });
+    } catch (e) {}
+  </script>
+</body>
+</html>
