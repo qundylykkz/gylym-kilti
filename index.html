@@ -1,0 +1,1460 @@
+<!doctype html>
+<html lang="kk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ғылым кілті — Жас зерттеушінің цифрлық зертханасы</title>
+
+  <!-- Google Fonts: Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-light: #f0f4f9;
+      --card-bg: rgba(255, 255, 255, 0.95);
+      --card-border: rgba(37, 99, 235, 0.15);
+      --blue-dark: #0f2b48;
+      --blue-main: #1d4ed8;
+      --blue-light: #3b82f6;
+      --gold-bright: #fbbf24;
+      --gold-dark: #d97706;
+      --blue-tint: #eff6ff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --line: #dbeafe;
+      --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.4);
+      --shadow-card: 0 10px 30px rgba(15, 43, 72, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, background-color 0.2s ease;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* Interactive Scientific Canvas Background */
+    #bgCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      pointer-events: auto;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header Navigation */
+    header {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 2px solid var(--line);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(15, 43, 72, 0.05);
+    }
+
+    .bar {
+      max-width: 1200px;
+      margin: auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-size: 22px;
+      font-weight: 900;
+      color: var(--blue-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-icon {
+      color: var(--gold-dark);
+      font-size: 26px;
+      animation: spinSlow 12s linear infinite;
+    }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .brand span {
+      color: var(--blue-main);
+    }
+
+    nav {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Animated Buttons */
+    button {
+      font-family: 'Montserrat', sans-serif;
+      cursor: pointer;
+      border: none;
+      border-radius: 14px;
+      font-weight: 700;
+      position: relative;
+      overflow: hidden;
+    }
+
+    nav button, .ghost {
+      background: #ffffff;
+      color: var(--blue-dark);
+      border: 2px solid var(--line);
+      padding: 10px 20px;
+      font-size: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    nav button:hover, .ghost:hover {
+      background: var(--blue-tint);
+      border-color: var(--blue-light);
+      color: var(--blue-main);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(29, 78, 216, 0.15);
+    }
+
+    nav button:active, .ghost:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+      color: #0f2b48;
+      padding: 14px 30px;
+      font-size: 16px;
+      font-weight: 800;
+      box-shadow: 0 10px 25px rgba(217, 119, 6, 0.25);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .primary:hover {
+      transform: translateY(-3px) scale(1.03);
+      box-shadow: 0 14px 30px rgba(217, 119, 6, 0.4);
+      filter: brightness(1.05);
+    }
+
+    .primary:active {
+      transform: translateY(0) scale(0.97);
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: auto;
+      padding: 30px 20px 60px;
+      width: 100%;
+      flex: 1;
+    }
+
+    /* Scroll Animations */
+    .animate-on-scroll {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease-out, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .animate-on-scroll.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Hero Section */
+    .hero {
+      border-radius: 36px;
+      padding: 50px 30px;
+      background: linear-gradient(135deg, #0f2b48 0%, #1e40af 50%, #2563eb 100%);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 20px 45px rgba(15, 43, 72, 0.18);
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 45px;
+      color: #ffffff;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Animated Glowing Logo Holder */
+    .logo-container {
+      position: relative;
+      width: 170px;
+      height: 170px;
+      margin-bottom: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      padding: 6px;
+    }
+
+    .logo-container::before {
+      content: '';
+      position: absolute;
+      top: -8px;
+      left: -8px;
+      right: -8px;
+      bottom: -8px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #fbbf24, #3b82f6, #60a5fa, #fbbf24);
+      z-index: -1;
+      animation: rotateGlow 4s linear infinite, pulseGlow 2s ease-in-out infinite alternate;
+    }
+
+    .logo-container::after {
+      content: '';
+      position: absolute;
+      top: -15px;
+      left: -15px;
+      right: -15px;
+      bottom: -15px;
+      border-radius: 50%;
+      background: rgba(251, 191, 36, 0.35);
+      filter: blur(14px);
+      z-index: -2;
+      animation: pulseGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes pulseGlow {
+      0% { opacity: 0.6; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1.05); }
+    }
+
+    .logo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 3px solid #ffffff;
+    }
+
+    .eyebrow {
+      color: #fef08a;
+      letter-spacing: 2px;
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 6px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 54px);
+      font-weight: 900;
+      margin: 10px 0 16px;
+      line-height: 1.15;
+      color: #ffffff;
+    }
+
+    .hero p {
+      font-size: 17px;
+      max-width: 680px;
+      line-height: 1.7;
+      color: #dbeafe;
+      margin-bottom: 28px;
+    }
+
+    /* Section titles */
+    h2 {
+      font-size: 30px;
+      color: var(--blue-dark);
+      margin: 40px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Specially Positioned Grid for 5 Sections */
+    .sections-custom-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 24px;
+      margin-top: 25px;
+    }
+
+    .card {
+      border: 2px solid var(--line);
+      background: var(--card-bg);
+      border-radius: 28px;
+      padding: 26px;
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(10px);
+    }
+
+    .section-card {
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 250px;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      box-shadow: 0 10px 30px rgba(15, 43, 72, 0.05);
+      border-radius: 28px;
+      padding: 28px;
+    }
+
+    /* Custom positioning for specific sections */
+    .sec-pos-1 { grid-column: span 2; }
+    .sec-pos-2 { grid-column: span 2; }
+    .sec-pos-3 { grid-column: span 2; }
+    
+    /* Section 4 centered under 1 & 2 */
+    .sec-pos-4 { grid-column: 2 / span 2; }
+    
+    /* Section 5 centered under 2 & 3 */
+    .sec-pos-5 { grid-column: 4 / span 2; }
+
+    .section-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      border-color: var(--blue-light);
+      box-shadow: 0 20px 40px rgba(29, 78, 216, 0.15);
+    }
+
+    .emoji {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: inline-block;
+    }
+
+    .section-card h3 {
+      color: var(--blue-dark);
+      font-size: 21px;
+      margin: 0 0 10px;
+      font-weight: 800;
+    }
+
+    .tag {
+      display: inline-block;
+      border-radius: 50px;
+      background: var(--blue-tint);
+      color: var(--blue-main);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 14px;
+      margin-bottom: 12px;
+      border: 1px solid var(--line);
+    }
+
+    .section-card .go {
+      color: var(--blue-main);
+      font-weight: 800;
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 15px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .back {
+      margin-bottom: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Detail Page Header */
+    .detail-head {
+      background: linear-gradient(135deg, #0f2b48 0%, #1e40af 100%);
+      border-radius: 28px;
+      color: white;
+      padding: 35px;
+      margin-bottom: 30px;
+      box-shadow: 0 15px 35px rgba(15, 43, 72, 0.15);
+    }
+
+    .detail-head h1 {
+      font-size: 34px;
+      margin: 10px 0 12px;
+      color: #ffffff;
+      font-weight: 800;
+    }
+
+    /* Native HTML Video Block */
+    .video-block {
+      background: #091a2d;
+      border: 2px solid var(--blue-light);
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 18px 0;
+      box-shadow: 0 12px 30px rgba(15, 43, 72, 0.12);
+    }
+
+    .video-container {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #05101c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      outline: none;
+    }
+
+    .video-placeholder-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px 20px;
+      color: #93c5fd;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #0f2b48 0%, #05101c 100%);
+    }
+
+    .video-placeholder-box .play-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(59, 130, 246, 0.2);
+      border: 2px solid #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      color: #60a5fa;
+      margin-bottom: 12px;
+    }
+
+    .video-placeholder-box code {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #fbbf24;
+      font-family: monospace;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    /* Redesigned Modern Interactive Topic Cards */
+    .topic-card {
+      border: 2px solid var(--line);
+      border-radius: 24px;
+      margin: 20px 0;
+      background: #ffffff;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(15, 43, 72, 0.04);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .topic-card:hover {
+      border-color: var(--blue-light);
+      box-shadow: 0 12px 30px rgba(29, 78, 216, 0.12);
+    }
+
+    .topic-header {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      cursor: pointer;
+      background: #ffffff;
+      user-select: none;
+    }
+
+    .topic-header:hover {
+      background: var(--blue-tint);
+    }
+
+    .topic-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--blue-dark);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topic-badge {
+      background: rgba(29, 78, 216, 0.1);
+      color: var(--blue-main);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .topic-toggle-btn {
+      background: var(--blue-main);
+      color: #ffffff;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 800;
+      transition: transform 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .topic-card.open .topic-toggle-btn {
+      transform: rotate(180deg);
+      background: var(--gold-dark);
+    }
+
+    .topic-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0, 1, 0, 1), opacity 0.3s ease;
+      opacity: 0;
+      padding: 0 24px;
+      border-top: 0px solid var(--line);
+    }
+
+    .topic-card.open .topic-body {
+      max-height: 2000px;
+      opacity: 1;
+      padding: 10px 24px 28px;
+      border-top-width: 2px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .step {
+      padding: 16px;
+      background: var(--blue-tint);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      font-size: 14px;
+    }
+
+    .step b {
+      display: block;
+      color: var(--blue-dark);
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    /* Inputs & Form Elements */
+    .field {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 2px solid #cbd5e1;
+      font-size: 15px;
+      margin: 8px 0 18px;
+      background: #ffffff;
+      color: var(--text-main);
+    }
+
+    .field:focus {
+      outline: none;
+      border-color: var(--blue-main);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    }
+
+    textarea.field {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .notice {
+      background: #fffbeb;
+      border-left: 5px solid var(--gold-dark);
+      padding: 20px;
+      border-radius: 16px;
+      line-height: 1.6;
+      border-top: 1px solid #fef3c7;
+      border-right: 1px solid #fef3c7;
+      border-bottom: 1px solid #fef3c7;
+      color: #92400e;
+    }
+
+    /* Quiz Styling */
+    .quiz-opt {
+      display: block;
+      margin: 10px 0;
+      padding: 14px 18px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      cursor: pointer;
+      background: #ffffff;
+    }
+
+    .quiz-opt:hover {
+      background: var(--blue-tint);
+      border-color: var(--blue-light);
+    }
+
+    .quiz-opt:has(input:checked) {
+      background: #eff6ff;
+      border-color: var(--blue-main);
+      color: var(--blue-dark);
+      font-weight: 700;
+    }
+
+    /* Footer */
+    footer {
+      background: #ffffff;
+      border-top: 2px solid var(--line);
+      color: var(--text-muted);
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 14px;
+      margin-top: auto;
+      font-weight: 700;
+    }
+
+    /* Responsive Grid Adjustments */
+    @media (max-width: 900px) {
+      .sections-custom-grid {
+        display: flex;
+        flex-direction: column;
+      }
+      .sec-pos-1, .sec-pos-2, .sec-pos-3, .sec-pos-4, .sec-pos-5 {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        padding: 35px 20px;
+      }
+      .logo-container {
+        width: 140px;
+        height: 140px;
+      }
+      .bar {
+        justify-content: center;
+      }
+      nav {
+        justify-content: center;
+        width: 100%;
+      }
+      nav button {
+        flex: 1;
+        text-align: center;
+        padding: 10px;
+        font-size: 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Interactive Science Canvas Animation -->
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="app-container">
+    <!-- Header Navigation -->
+    <header>
+      <div class="bar">
+        <div class="brand" onclick="showHome()">
+          <span class="brand-icon">✦</span> ҒЫЛЫМ <span>КІЛТІ</span>
+        </div>
+        <nav>
+          <button class="animate-on-scroll" onclick="showHome()">Басты бет</button>
+          <button class="animate-on-scroll" onclick="showHome(true)">5 бөлім</button>
+          <button class="animate-on-scroll" onclick="showDiary()">Ғылыми күнделік</button>
+          <button class="animate-on-scroll" onclick="showAuthor()">Автор туралы</button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content Wrapper -->
+    <main class="wrap">
+      
+      <!-- HOME SECTION -->
+      <section id="home">
+        <div class="hero animate-on-scroll">
+          
+          <!-- Animated Glowing Logo Container -->
+          <div class="logo-container">
+            <img src="images/logo.jpg" alt="Ғылым кілті" class="logo-img" onerror="this.onerror=null; this.src='https://placehold.co/170x170/1d4ed8/ffffff?text=%D2%92%D1%8B%D0%BB%D1%8B%D0%BC+%D0%9A%D1%96%D0%BB%D1%82%D1%96';">
+          </div>
+
+          <div class="eyebrow">ЖАС ЗЕРТТЕУШІНІҢ ЦИФРЛЫҚ ЗЕРТХАНАСЫ</div>
+          <h1>ҒЫЛЫМ КІЛТІ</h1>
+          <p>Ғылым әлемін бірге ашайық! Бақыла, сұрақ қой, болжам жаса, зертте және өз жаңалығыңды аш.</p>
+          <button class="primary animate-on-scroll" onclick="showHome(true)">Зерттеуді бастау →</button>
+        </div>
+
+        <h2 id="sectionsTitle" class="animate-on-scroll">✦ Бес ғылыми әлем</h2>
+        <p class="muted animate-on-scroll">«Ғылымға бастар баспалдақ» авторлық бағдарламасының бөлімдері</p>
+
+        <!-- Main Video Intro Section for "Бес ғылыми әлем" -->
+        <div class="card animate-on-scroll" style="margin: 20px 0 30px;">
+          <h3 style="margin-top:0; color: var(--blue-dark); font-size: 20px; font-weight: 800;">🎥 «Бес ғылыми әлем» бағдарламасының бейнекіріспесі</h3>
+          <p class="muted" style="margin-bottom: 15px;">Кіріспе бейнежазбаны көріп, зертханалық жұмыстармен танысыңыз:</p>
+          <div class="video-block">
+            <div class="video-container">
+              <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <source src="videos/main-intro.mp4" type="video/mp4">
+                Браузер видеоны қолдамайды.
+              </video>
+              <div class="video-placeholder-box" style="display:none;">
+                <div class="play-icon">🎬</div>
+                <strong style="color:#ffffff; font-size:16px;">«Бес ғылыми әлем» (Басты видеосабақ)</strong>
+                <p style="margin: 4px 0 0; font-size: 13px;">Компьютерден MP4 файл табылмады</p>
+                <code>videos/main-intro.mp4</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Custom Positioned Grid for 5 Sections -->
+        <div class="sections-custom-grid">
+          
+          <!-- SECTION 1 (Row 1) -->
+          <article class="card section-card sec-pos-1 animate-on-scroll" onclick="showSection('sec-1')">
+            <div>
+              <div class="emoji">🔎</div>
+              <span class="tag">1-БӨЛІМ</span>
+              <h3>Мен зерттеушімін</h3>
+              <p class="muted" style="font-size: 14px;">Зерттеу сұрағын қою, болжам жасау, бақылау жүргізу және қорытынды шығару.</p>
+            </div>
+            <div class="go">Бөлімді ашу <span>→</span></div>
+          </article>
+
+          <!-- SECTION 2 (Row 1) -->
+          <article class="card section-card sec-pos-2 animate-on-scroll" onclick="showSection('sec-2')">
+            <div>
+              <div class="emoji">🌿</div>
+              <span class="tag">2-БӨЛІМ</span>
+              <h3>Жанды табиғат</h3>
+              <p class="muted" style="font-size: 14px;">Өсімдіктер, жануарлар, табиғатты қорғау және адам ағзасы.</p>
+            </div>
+            <div class="go">Бөлімді ашу <span>→</span></div>
+          </article>
+
+          <!-- SECTION 3 (Row 1) -->
+          <article class="card section-card sec-pos-3 animate-on-scroll" onclick="showSection('sec-3')">
+            <div>
+              <div class="emoji">💧</div>
+              <span class="tag">3-БӨЛІМ</span>
+              <h3>Заттар және олардың қасиеттері</h3>
+              <p class="muted" style="font-size: 14px;">Ауаның, судың және табиғи ресурстардың қасиеттерін зерттеу.</p>
+            </div>
+            <div class="go">Бөлімді ашу <span>→</span></div>
+          </article>
+
+          <!-- SECTION 4 (Row 2: Positioned under Section 1 & Section 2) -->
+          <article class="card section-card sec-pos-4 animate-on-scroll" onclick="showSection('sec-4')">
+            <div>
+              <div class="emoji">🪐</div>
+              <span class="tag">4-БӨЛІМ</span>
+              <h3>Жер және Ғарыш</h3>
+              <p class="muted" style="font-size: 14px;">Жер, Күн, ғаламшарлар, уақыт және табиғаттың тылсым сырлары.</p>
+            </div>
+            <div class="go">Бөлімді ашу <span>→</span></div>
+          </article>
+
+          <!-- SECTION 5 (Row 3: Positioned under Section 2 & Section 3) -->
+          <article class="card section-card sec-pos-5 animate-on-scroll" onclick="showSection('sec-5')">
+            <div>
+              <div class="emoji">🧲</div>
+              <span class="tag">5-БӨЛІМ</span>
+              <h3>Табиғат физикасы</h3>
+              <p class="muted" style="font-size: 14px;">Күш, қозғалыс, жарық, дыбыс, жылу және магнит.</p>
+            </div>
+            <div class="go">Бөлімді ашу <span>→</span></div>
+          </article>
+
+        </div>
+
+        <div class="notice animate-on-scroll" style="margin-top:35px">
+          <b style="color: var(--gold-dark);">💡 Жас зерттеушіге кеңес:</b> Бейне — зерттеуге арналған көрнекі модель. Болжамыңды өз бақылауыңмен тексеріп, ғылыми күнделікке жаз.
+        </div>
+      </section>
+
+
+      <!-- ==================== SECTION DETAILS (DIRECT HTML STRUCTURE) ==================== -->
+
+      <!-- SECTION 1 DETAIL -->
+      <section id="sec-1" class="section-detail hidden">
+        <button class="ghost back animate-on-scroll" onclick="showHome(true)">← Бес бөлімге оралу</button>
+        <div class="detail-head animate-on-scroll">
+          <div class="eyebrow">1-БӨЛІМ</div>
+          <h1>🔎 Мен зерттеушімін</h1>
+          <p class="muted" style="color: #dbeafe;">Зерттеу сұрағын қою, болжам жасау, бақылау жүргізу және қорытынды шығару.</p>
+        </div>
+
+        <h2 class="animate-on-scroll">🔬 Зерттеу тақырыптары (2 Тақырып)</h2>
+        <p class="muted animate-on-scroll">Тақырыпты басып, интерактивті видеоны және зерттеу тапсырмасын ашыңыз.</p>
+
+        <!-- Topic 1.1 -->
+        <div class="topic-card animate-on-scroll" id="tc-1-1">
+          <div class="topic-header" onclick="toggleTopicCard('tc-1-1')">
+            <h3 class="topic-title">
+              <span class="topic-badge">1.1</span>
+              <span>Мен зерттеуші боламын</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/main-intro.mp4" type="video/mp4">
+                  Браузер видеоны қолдамайды.
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff; font-size:16px;">Мен зерттеуші боламын (Видеосабақ)</strong>
+                  <p style="margin: 4px 0 0; font-size: 13px;">Компьютерден MP4 файл табылмады</p>
+                  <code>videos/aua-raiy.mp4</code>
+                </div>
+              </div>
+            </div>
+
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Ауа райы неліктен өзгеріп тұрады?</p>
+            <p class="muted"><b>💡 Нұсқау:</b> Ауа райын бақылап, бұлт, жел және жауын-шашын белгілерін тірке.</p>
+
+            <div class="steps">
+              <div class="step"><b>1. Сұрақ</b>Нені білгім келеді?</div>
+              <div class="step"><b>2. Болжам</b>Мен қалай ойлаймын?</div>
+              <div class="step"><b>3. Бақылау</b>Не байқадым?</div>
+              <div class="step"><b>4. Қорытынды</b>Нені анықтадым?</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Topic 1.2 -->
+        <div class="topic-card animate-on-scroll" id="tc-1-2">
+          <div class="topic-header" onclick="toggleTopicCard('tc-1-2')">
+            <h3 class="topic-title">
+              <span class="topic-badge">1.2</span>
+              <span>Ауа райы неге өзгереді? — Зерттеу сұрағы мен болжам</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/aua-raiy-2.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Ауа райы неге өзгереді? (Видеосабақ)</strong>
+                  <code>videos/aua-raiy-2.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Бұлт көбейсе, міндетті түрде жаңбыр жауа ма?</p>
+            <p class="muted"><b>💡 Нұсқау:</b> Болжам жаса және ауа райын бірнеше күн бақыла.</p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- SECTION 2 DETAIL (Kept all 3 topics) -->
+      <section id="sec-2" class="section-detail hidden">
+        <button class="ghost back animate-on-scroll" onclick="showHome(true)">← Бес бөлімге оралу</button>
+        <div class="detail-head animate-on-scroll">
+          <div class="eyebrow">2-БӨЛІМ</div>
+          <h1>🌿 Жанды табиғат</h1>
+          <p class="muted" style="color: #dbeafe;">Өсімдіктер, жануарлар, табиғатты қорғау және адам ағзасы.</p>
+        </div>
+
+        <h2 class="animate-on-scroll">🔬 Зерттеу тақырыптары (3 Тақырып)</h2>
+
+        <!-- Topic 2.1 -->
+        <div class="topic-card animate-on-scroll" id="tc-2-1">
+          <div class="topic-header" onclick="toggleTopicCard('tc-2-1')">
+            <h3 class="topic-title">
+              <span class="topic-badge">2.1</span>
+              <span>Өсімдік әлемін зерттейміз</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/zhandy-tabigat-1.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Өсімдік әлемі (Видеосабақ)</strong>
+                  <code>videos/zhandy-tabigat-1.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Өсімдікке жарық пен су қалай әсер етеді?</p>
+          </div>
+        </div>
+
+        <!-- Topic 2.2 -->
+        <div class="topic-card animate-on-scroll" id="tc-2-2">
+          <div class="topic-header" onclick="toggleTopicCard('tc-2-2')">
+            <h3 class="topic-title">
+              <span class="topic-badge">2.2</span>
+              <span>Тұқымның ояну құпиясы</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/zhandy-tabigat-2.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Тұқымның ояну құпиясы</strong>
+                  <code>videos/zhandy-tabigat-2.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Ақбөкендердің далада өмір сүру бейімділігі қандай?</p>
+          </div>
+        </div>
+
+        <!-- Topic 2.3 -->
+        <div class="topic-card animate-on-scroll" id="tc-2-3">
+          <div class="topic-header" onclick="toggleTopicCard('tc-2-3')">
+            <h3 class="topic-title">
+              <span class="topic-badge">2.3</span>
+              <span>Алоэ өсімдігі</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/zhandy-tabigat-3.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Адам денесінің құпиясы (Видеосабақ)</strong>
+                  <code>videos/zhandy-tabigat-3.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Мүшелер жүйесі қалай үйлесімді жұмыс жасайды?</p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- SECTION 3 DETAIL -->
+      <section id="sec-3" class="section-detail hidden">
+        <button class="ghost back animate-on-scroll" onclick="showHome(true)">← Бес бөлімге оралу</button>
+        <div class="detail-head animate-on-scroll">
+          <div class="eyebrow">3-БӨЛІМ</div>
+          <h1>💧 Заттар және олардың қасиеттері</h1>
+          <p class="muted" style="color: #dbeafe;">Ауаның, судың және табиғи ресурстардың қасиеттерін зерттеу.</p>
+        </div>
+
+        <h2 class="animate-on-scroll">🔬 Зерттеу тақырыптары (2 Тақырып)</h2>
+
+        <!-- Topic 3.1 -->
+        <div class="topic-card animate-on-scroll" id="tc-3-1">
+          <div class="topic-header" onclick="toggleTopicCard('tc-3-1')">
+            <h3 class="topic-title">
+              <span class="topic-badge">3.1</span>
+              <span>Ауа – тіршілік өмірі</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/zattar-1.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Ауа – тіршілік өмірі (Видеосабақ)</strong>
+                  <code>videos/zattar-1.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Ауаның салмағы мен қысымы бар ма?</p>
+          </div>
+        </div>
+
+        <!-- Topic 3.2 -->
+        <div class="topic-card animate-on-scroll" id="tc-3-2">
+          <div class="topic-header" onclick="toggleTopicCard('tc-3-2')">
+            <h3 class="topic-title">
+              <span class="topic-badge">3.2</span>
+              <span>Су – тіршілік көзі</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/zattar-2.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Су – тіршілік көзі (Видеосабақ)</strong>
+                  <code>videos/zattar-2.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Судың 3 түрлі күйге өту құпиясы қандай?</p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- SECTION 4 DETAIL -->
+      <section id="sec-4" class="section-detail hidden">
+        <button class="ghost back animate-on-scroll" onclick="showHome(true)">← Бес бөлімге оралу</button>
+        <div class="detail-head animate-on-scroll">
+          <div class="eyebrow">4-БӨЛІМ</div>
+          <h1>🪐 Жер және Ғарыш</h1>
+          <p class="muted" style="color: #dbeafe;">Жер, Күн, ғаламшарлар, уақыт және табиғаттың тылсым сырлары.</p>
+        </div>
+
+        <h2 class="animate-on-scroll">🔬 Зерттеу тақырыптары (2 Тақырып)</h2>
+
+        <!-- Topic 4.1 -->
+        <div class="topic-card animate-on-scroll" id="tc-4-1">
+          <div class="topic-header" onclick="toggleTopicCard('tc-4-1')">
+            <h3 class="topic-title">
+              <span class="topic-badge">4.1</span>
+              <span>Жер мен Күннің достығы</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/garysh-1.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Жер мен Күннің достығы (Видеосабақ)</strong>
+                  <code>videos/garysh-1.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Жер Күнді айналғанда не өзгереді?</p>
+          </div>
+        </div>
+
+        <!-- Topic 4.2 -->
+        <div class="topic-card animate-on-scroll" id="tc-4-2">
+          <div class="topic-header" onclick="toggleTopicCard('tc-4-2')">
+            <h3 class="topic-title">
+              <span class="topic-badge">4.2</span>
+              <span>Күн жүйесі және ғаламшарлар</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/garysh-2.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Күн жүйесі (Видеосабақ)</strong>
+                  <code>videos/garysh-2.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Ғаламшарлардың орналасу реті қандай?</p>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- SECTION 5 DETAIL -->
+      <section id="sec-5" class="section-detail hidden">
+        <button class="ghost back animate-on-scroll" onclick="showHome(true)">← Бес бөлімге оралу</button>
+        <div class="detail-head animate-on-scroll">
+          <div class="eyebrow">5-БӨЛІМ</div>
+          <h1>𧲏 Табиғат физикасы</h1>
+          <p class="muted" style="color: #dbeafe;">Күш, қозғалыс, жарық, дыбыс, жылу және магнит.</p>
+        </div>
+
+        <h2 class="animate-on-scroll">🔬 Зерттеу тақырыптары (2 Тақырып)</h2>
+
+        <!-- Topic 5.1 -->
+        <div class="topic-card animate-on-scroll" id="tc-5-1">
+          <div class="topic-header" onclick="toggleTopicCard('tc-5-1')">
+            <h3 class="topic-title">
+              <span class="topic-badge">5.1</span>
+              <span>Күш және қозғалыс деген не?</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/fizika-1.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Күш және қозғалыс (Видеосабақ)</strong>
+                  <code>videos/fizika-1.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Ауырлық күші мен үйкеліс қозғалысқа қалай әсер етеді?</p>
+          </div>
+        </div>
+
+        <!-- Topic 5.2 -->
+        <div class="topic-card animate-on-scroll" id="tc-5-2">
+          <div class="topic-header" onclick="toggleTopicCard('tc-5-2')">
+            <h3 class="topic-title">
+              <span class="topic-badge">5.2</span>
+              <span>Дыбыс пен жарықтың таралуы</span>
+            </h3>
+            <div class="topic-toggle-btn">▼</div>
+          </div>
+          <div class="topic-body">
+            <div class="video-block">
+              <div class="video-container">
+                <video controls preload="metadata" playsinline onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                  <source src="videos/fizika-2.mp4" type="video/mp4">
+                </video>
+                <div class="video-placeholder-box" style="display:none;">
+                  <div class="play-icon">🎬</div>
+                  <strong style="color:#ffffff;">Дыбыс пен жарық (Видеосабақ)</strong>
+                  <code>videos/fizika-2.mp4</code>
+                </div>
+              </div>
+            </div>
+            <p style="font-size: 16px;"><b>🔬 Зерттеу сұрағы:</b> Дыбыс толқындары қалай таралады?</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCIENTIFIC DIARY SECTION -->
+      <section id="diary" class="hidden">
+        <button class="ghost back animate-on-scroll" onclick="showHome()">← Басты бет</button>
+        <h2 class="animate-on-scroll">📒 Ғылыми күнделік</h2>
+        <p class="muted animate-on-scroll">Зерттеу қадамдарын толтырыңыз. Жазбалар осы браузерде сақталады; басқа құрылғыда автоматты түрде ашылмайды.</p>
+        
+        <div class="card animate-on-scroll">
+          <label><b>Зерттеу тақырыбы</b>
+            <input class="field" id="dTopic" placeholder="Мысалы: Ауа райы неге өзгереді?">
+          </label>
+          <label><b>Зерттеу сұрағы</b>
+            <textarea class="field" id="dQuestion" placeholder="Зерттеуге қатысты сұрағыңызды жазыңыз..."></textarea>
+          </label>
+          <label><b>Менің болжамым</b>
+            <textarea class="field" id="dHypothesis" placeholder="Сіздің ойыңызша жауабы қандай болуы мүмкін?"></textarea>
+          </label>
+          <label><b>Бақылау / тәжірибе нәтижесі</b>
+            <textarea class="field" id="dObservation" placeholder="Тәжірибе барысында не байқадыңыз?"></textarea>
+          </label>
+          <label><b>Менің қорытындым</b>
+            <textarea class="field" id="dConclusion" placeholder="Қандай қорытындыға келдіңіз?"></textarea>
+          </label>
+          
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="primary animate-on-scroll" onclick="saveDiary()">Күнделікке сақтау</button>
+            <button class="ghost animate-on-scroll" onclick="window.print()">Басып шығару</button>
+          </div>
+          <p id="saveStatus" style="font-size: 14px; margin-top: 12px; font-weight: 700;"></p>
+        </div>
+      </section>
+
+      <!-- AUTHOR SECTION -->
+      <section id="author" class="hidden">
+        <button class="ghost back animate-on-scroll" onclick="showHome()">← Басты бет</button>
+        <h2 class="animate-on-scroll">Авторлық бағдарлама туралы</h2>
+        <div class="card animate-on-scroll">
+          <h3 style="color: var(--blue-dark); font-size: 24px; margin-top: 0;">«Ғылымға бастар баспалдақ»</h3>
+          <p>Жалпы білім беретін мектептің жаратылыстану пәні бойынша 4-сыныпқа арналған авторлық бағдарлама.</p>
+          <div style="background: var(--blue-tint); padding: 20px; border-radius: 18px; border: 1px solid var(--line); margin: 20px 0;">
+            <p style="margin: 6px 0;"><b>Автор:</b> Мутиева Алия Таргиновна</p>
+            <p style="margin: 6px 0;"><b>Мекеме:</b> БҚО, Сырым ауданы, «Көздіғара негізгі орта мектебі» КММ</p>
+            <p style="margin: 6px 0;"><b>Оқу жүктемесі:</b> аптасына 1 сағат, барлығы 34 сағат.</p>
+          </div>
+          <p class="muted">«Ғылым кілті» — бағдарламадағы зерттеу әрекеттерін цифрлық форматта көрсетуге арналған интерактивті платформа.</p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+      ҒЫЛЫМ КІЛТІ · Жас зерттеушінің цифрлық зертханасы · 2026
+    </footer>
+  </div>
+
+  <script>
+    /* ===================================================
+       1. CANVAS ANIMATION (Scientific Particles)
+       =================================================== */
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: null, y: null, radius: 160 };
+
+    function initCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particles = [];
+      const particleCount = Math.floor((canvas.width * canvas.height) / 13000);
+      
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 2.8 + 1,
+          vx: (Math.random() - 0.5) * 0.7,
+          vy: (Math.random() - 0.5) * 0.7,
+          color: Math.random() > 0.35 ? '#1d4ed8' : '#d97706'
+        });
+      }
+    }
+
+    function animateCanvas() {
+      requestAnimationFrame(animateCanvas);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 125) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(29, 78, 216, ${0.22 - (dist / 125) * 0.20})`;
+            ctx.lineWidth = 0.9;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        if (mouse.x !== null) {
+          const mdx = p.x - mouse.x;
+          const mdy = p.y - mouse.y;
+          const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+          if (mdist < mouse.radius) {
+            const angle = Math.atan2(mdy, mdx);
+            const force = (mouse.radius - mdist) / mouse.radius;
+            p.x += Math.cos(angle) * force * 2.2;
+            p.y += Math.sin(angle) * force * 2.2;
+          }
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+      });
+    }
+
+    window.addEventListener('resize', initCanvas);
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+    window.addEventListener('mouseleave', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    initCanvas();
+    animateCanvas();
+
+    /* ===================================================
+       2. SCROLL INTERSECTION OBSERVER FOR ANIMATIONS
+       =================================================== */
+    function initScrollObserver() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.1 });
+
+      document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    }
+
+    document.addEventListener('DOMContentLoaded', initScrollObserver);
+    setTimeout(initScrollObserver, 100);
+
+    /* ===================================================
+       3. NAVIGATION LOGIC, TOPIC TOGGLE & DIARY
+       =================================================== */
+
+    function hideAllSections() {
+      document.getElementById('home').classList.add('hidden');
+      document.getElementById('diary').classList.add('hidden');
+      document.getElementById('author').classList.add('hidden');
+      document.querySelectorAll('.section-detail').forEach(sec => sec.classList.add('hidden'));
+    }
+
+    function showHome(scroll) {
+      hideAllSections();
+      document.getElementById('home').classList.remove('hidden');
+      window.scrollTo(0, 0);
+      if (scroll) {
+        setTimeout(() => {
+          const el = document.getElementById('sectionsTitle');
+          if (el) el.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
+      }
+      setTimeout(initScrollObserver, 100);
+    }
+
+    function showSection(secId) {
+      hideAllSections();
+      const target = document.getElementById(secId);
+      if (target) {
+        target.classList.remove('hidden');
+        window.scrollTo(0, 0);
+      }
+      setTimeout(initScrollObserver, 100);
+    }
+
+    function showDiary() {
+      hideAllSections();
+      document.getElementById('diary').classList.remove('hidden');
+      window.scrollTo(0, 0);
+      setTimeout(initScrollObserver, 100);
+    }
+
+    function showAuthor() {
+      hideAllSections();
+      document.getElementById('author').classList.remove('hidden');
+      window.scrollTo(0, 0);
+      setTimeout(initScrollObserver, 100);
+    }
+
+    function toggleTopicCard(cardId) {
+      const card = document.getElementById(cardId);
+      if (card) {
+        card.classList.toggle('open');
+      }
+    }
+
+    function checkQuizDirect(groupName, correctIndex, ansId) {
+      const selected = document.querySelector(`input[name="${groupName}"]:checked`);
+      const ansElem = document.getElementById(ansId);
+      if (!selected) {
+        ansElem.style.color = '#d97706';
+        ansElem.textContent = 'Алдымен жауапты таңдаңыз.';
+      } else if (parseInt(selected.value) === correctIndex) {
+        ansElem.style.color = '#1d4ed8';
+        ansElem.textContent = 'Дұрыс! Тамаша жауап.';
+      } else {
+        ansElem.style.color = '#dc2626';
+        ansElem.textContent = 'Қайта ойланып көріңіз.';
+      }
+    }
+
+    function startDiaryDirect(topicTitle) {
+      document.getElementById('dTopic').value = topicTitle;
+      showDiary();
+    }
+
+    function saveDiary() {
+      const data = {};
+      ['dTopic', 'dQuestion', 'dHypothesis', 'dObservation', 'dConclusion'].forEach(k => {
+        data[k] = document.getElementById(k).value;
+      });
+      try {
+        localStorage.setItem('gylym-kilti-diary', JSON.stringify(data));
+        const status = document.getElementById('saveStatus');
+        status.style.color = '#1d4ed8';
+        status.textContent = '✓ Жазба осы браузерде сәтті сақталды.';
+      } catch (e) {
+        const status = document.getElementById('saveStatus');
+        status.style.color = '#dc2626';
+        status.textContent = 'Автоматты сақтау қолжетімсіз.';
+      }
+    }
+
+    // Load saved diary
+    try {
+      const saved = JSON.parse(localStorage.getItem('gylym-kilti-diary') || 'null');
+      if (saved) {
+        Object.keys(saved).forEach(k => {
+          if (document.getElementById(k)) document.getElementById(k).value = saved[k];
+        });
+      }
+    } catch (e) {}
+  </script>
+</body>
+</html>
